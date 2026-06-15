@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Menu Digital | [Nama Restoran]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f7f7f7;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+        }
+        
+        .header p {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        /* Kategori Tab */
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            scrollbar-width: thin;
+        }
+        
+        .category-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .category-btn.active {
+            background: #25D366;
+            border-color: #25D366;
+            color: white;
+        }
+        
+        /* Grid Menu */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .menu-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+        
+        .card-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #eee;
+        }
+        
+        .card-content {
+            padding: 15px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .card-category {
+            font-size: 12px;
+            color: #25D366;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .card-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .order-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .order-btn:hover {
+            background: #1da15a;
+        }
+        
+        /* Footer / Cart Summary */
+        .cart-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .cart-total {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .checkout-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .cart-item-count {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        @media (max-width: 640px) {
+            body {
+                padding: 15px;
+                padding-bottom: 80px;
+            }
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍽️ [Nama Restoran]</h1>
+        <p>Scan QR Code ini untuk pesan langsung via WhatsApp</p>
+    </div>
+    
+    <div class="categories" id="categories">
+        <!-- Kategori akan diisi oleh JavaScript -->
+    </div>
+    
+    <div class="menu-grid" id="menuGrid">
+        <div class="loading">Memuat menu...</div>
+    </div>
+    
+    <div class="cart-footer" id="cartFooter" style="display: none;">
+        <div class="cart-total">
+            Total: <span id="cartTotal">Rp 0</span>
+            <span class="cart-item-count" id="cartCount">0</span>
+        </div>
+        <button class="checkout-btn" id="checkoutBtn">Pesan via WhatsApp →</button>
+    </div>
+    
+    <script>
+        // ============ KONFIGURASI ============
+        // Ganti dengan URL API yang sudah Anda deploy dari Langkah 3!
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwjI09PEhB1Nf1CgL0oWTqVZgkvAWI8A-aMkZkdRxRrAK4F1ExEomRaDeYMphj4eWCzQA/exec';
+        
+        // Nomor WhatsApp toko (pakai kode negara, contoh: 628123456789 untuk Indonesia)
+        const WHATSAPP_NUMBER = '6285749490884';
+        
+        // Nama toko (akan muncul di pesan WhatsApp)
+        const STORE_NAME = '[Restoran Aghnia]';
+        // =====================================
+        
+        let allItems = [];      // Semua item menu
+        let cart = [];          // Item dalam keranjang: { id, nama_item, harga, quantity }
+        
+        // Fungsi format Rupiah
+        function formatRupiah(angka) {
+            return 'Rp ' + angka.toLocaleString('id-ID');
+        }
+        
+        // Fungsi mengambil data dari API
+        async function fetchMenu() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Gagal mengambil data');
+                const data = await response.json();
+                // Filter item yang tersedia
+                allItems = data.filter(item => item.tersedia === 'ya');
+                renderCategories();
+                renderMenu('semua');
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('menuGrid').innerHTML = 
+                    '<div class="loading">Gagal memuat menu. Periksa koneksi atau URL API.</div>';
+            }
+        }
+        
+        // Render tombol kategori
+        function renderCategories() {
+            const categories = ['semua', ...new Set(allItems.map(item => item.kategori))];
+            const container = document.getElementById('categories');
+            container.innerHTML = categories.map(cat => 
+                `<button class="category-btn ${cat === 'semua' ? 'active' : ''}" data-category="${cat}">
+                    ${cat === 'semua' ? 'Semua' : cat}
+                </button>`
+            ).join('');
+            
+            // Event listener untuk filter kategori
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const category = btn.dataset.category;
+                    renderMenu(category);
+                });
+            });
+        }
+        
+        // Render item menu berdasarkan kategori
+        function renderMenu(category) {
+            const filtered = category === 'semua' 
+                ? allItems 
+                : allItems.filter(item => item.kategori === category);
+            
+            const container = document.getElementById('menuGrid');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading">Tidak ada menu di kategori ini</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(item => `
+                <div class="menu-card" data-id="${item.id}">
+                    <img class="card-img" src="${item.link_gambar}" alt="${item.nama_item}" 
+                         onerror="this.src='https://picsum.photos/id/1/400/300'">
+                    <div class="card-content">
+                        <div class="card-title">${item.nama_item}</div>
+                        <div class="card-category">${item.kategori}</div>
+                        <div class="card-desc">${item.deskripsi || ''}</div>
+                        <div class="price-row">
+                            <span class="price">${formatRupiah(parseInt(item.harga))}</span>
+                            <button class="order-btn" data-id="${item.id}" data-nama="${item.nama_item}" data-harga="${item.harga}">
+                                + Tambah
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Event listener untuk tombol tambah ke keranjang
+            document.querySelectorAll('.order-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = parseInt(btn.dataset.id);
+                    const nama = btn.dataset.nama;
+                    const harga = parseInt(btn.dataset.harga);
+                    addToCart(id, nama, harga);
+                });
+            });
+        }
+        
+        // Menambah item ke keranjang
+        function addToCart(id, nama, harga) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ id, nama_item: nama, harga, quantity: 1 });
+            }
+            updateCartUI();
+            
+            // Animasi feedback
+            const btn = event.target;
+            const originalText = btn.innerText;
+            btn.innerText = '✓ Ditambahkan';
+            setTimeout(() => { btn.innerText = originalText; }, 1000);
+        }
+        
+        // Update tampilan keranjang
+        function updateCartUI() {
+            const footer = document.getElementById('cartFooter');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.harga * item.quantity), 0);
+            
+            if (totalItems === 0) {
+                footer.style.display = 'none';
+            } else {
+                footer.style.display = 'flex';
+                document.getElementById('cartCount').innerText = totalItems;
+                document.getElementById('cartTotal').innerHTML = formatRupiah(totalPrice);
+            }
+        }
+        
+        // Buat format pesanan WhatsApp
+        function formatWhatsAppMessage() {
+            let message = `*PESANAN DARI ${STORE_NAME.toUpperCase()}*%0A%0A`;
+            cart.forEach(item => {
+                message += `🍽️ ${item.nama_item}%0A`;
+                message += `   📦 ${item.quantity} x ${formatRupiah(item.harga)} = ${formatRupiah(item.harga * item.quantity)}%0A`;
+            });
+            const totalPrice = cart.reduce((sum, item) => sum + (item.harga * item.quantity), 0);
+            message += `%0A*TOTAL: ${formatRupiah(totalPrice)}*%0A%0A`;
+            message += `Silakan konfirmasi pesanan dan berikan alamat pengiriman.%0A`;
+            message += `Terima kasih! 🙏`;
+            return message;
+        }
+        
+        // Checkout: redirect ke WhatsApp
+        function checkout() {
+            if (cart.length === 0) {
+                alert('Keranjang masih kosong. Silakan pilih menu terlebih dahulu.');
+                return;
+            }
+            const message = formatWhatsAppMessage();
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+            window.open(waUrl, '_blank');
+        }
+        
+        // Event listener untuk tombol checkout
+        document.getElementById('checkoutBtn').addEventListener('click', checkout);
+        
+        // Load data saat halaman dibuka
+        fetchMenu();
+    </script>
+</body>
+</html>
