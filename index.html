@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Menu Digital | [Nama Restoran]</title>
+    <title>Menu Digital | Aghnia Restaurant</title>
     <style>
         * {
             margin: 0;
@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #f7f7f7;
             padding: 20px;
-            padding-bottom: 80px;
+            padding-bottom: 100px;
         }
         
         .header {
@@ -33,7 +33,6 @@
             margin-top: 5px;
         }
         
-        /* Kategori Tab */
         .categories {
             display: flex;
             gap: 10px;
@@ -61,7 +60,6 @@
             color: white;
         }
         
-        /* Grid Menu */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -141,7 +139,7 @@
             background: #1da15a;
         }
         
-        /* Footer / Cart Summary */
+        /* ============ FOOTER ============ */
         .cart-footer {
             position: fixed;
             bottom: 0;
@@ -150,15 +148,35 @@
             background: white;
             box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
             padding: 12px 20px;
-            display: flex;
+            display: none;
             justify-content: space-between;
             align-items: center;
             z-index: 100;
         }
         
+        .cart-footer-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        
+        .cart-footer-left:hover {
+            opacity: 0.7;
+        }
+        
         .cart-total {
             font-weight: 600;
             font-size: 16px;
+        }
+        
+        .cart-item-count {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 10px;
+            font-size: 12px;
+            font-weight: bold;
         }
         
         .checkout-btn {
@@ -169,15 +187,166 @@
             border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
+            font-size: 14px;
         }
         
-        .cart-item-count {
-            background: #ff6b6b;
-            color: white;
+        .checkout-btn:hover {
+            background: #1da15a;
+        }
+        
+        /* ============ MODAL KERANJANG ============ */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px 20px 0 0;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            padding: 20px;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .modal-header h2 {
+            font-size: 20px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            padding: 0 8px;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .cart-item-info {
+            flex: 1;
+        }
+        
+        .cart-item-name {
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .cart-item-price {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .qty-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            padding: 2px 8px;
-            font-size: 12px;
-            margin-left: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .qty-btn:hover {
+            background: #ddd;
+        }
+        
+        .qty-btn.remove {
+            background: #ffebee;
+            color: #e53935;
+        }
+        
+        .qty-btn.remove:hover {
+            background: #ffcdd2;
+        }
+        
+        .cart-item-qty {
+            font-weight: 600;
+            min-width: 24px;
+            text-align: center;
+        }
+        
+        .modal-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            margin-top: 8px;
+            border-top: 2px solid #eee;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .modal-checkout-btn {
+            width: 100%;
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .modal-checkout-btn:hover {
+            background: #1da15a;
+        }
+        
+        .empty-cart {
+            text-align: center;
+            padding: 40px 0;
+            color: #999;
         }
         
         .loading {
@@ -189,63 +358,83 @@
         @media (max-width: 640px) {
             body {
                 padding: 15px;
-                padding-bottom: 80px;
+                padding-bottom: 100px;
             }
             .menu-grid {
                 grid-template-columns: 1fr;
+            }
+            .modal-content {
+                padding: 16px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- HEADER -->
     <div class="header">
-        <h1>🍽️ [Aghnia Restaurant]</h1>
+        <h1>🍽️ Aghnia Restaurant</h1>
         <p>Scan QR Code ini untuk pesan langsung via WhatsApp</p>
     </div>
     
-    <div class="categories" id="categories">
-        <!-- Kategori akan diisi oleh JavaScript -->
-    </div>
+    <!-- KATEGORI -->
+    <div class="categories" id="categories"></div>
     
+    <!-- GRID MENU -->
     <div class="menu-grid" id="menuGrid">
         <div class="loading">Memuat menu...</div>
     </div>
     
-    <div class="cart-footer" id="cartFooter" style="display: none;">
-        <div class="cart-total">
-            Total: <span id="cartTotal">Rp 0</span>
-            <span class="cart-item-count" id="cartCount">0</span>
+    <!-- FOOTER KERANJANG -->
+    <div class="cart-footer" id="cartFooter">
+        <div class="cart-footer-left" id="viewCartBtn">
+            <span>🛒 Keranjang</span>
+            <span class="cart-item-count" id="footerItemCount">0</span>
         </div>
-        <button class="checkout-btn" id="checkoutBtn">Pesan via WhatsApp →</button>
+        <div>
+            <span class="cart-total" id="footerTotal">Rp 0</span>
+            <button class="checkout-btn" id="checkoutBtn">Pesan →</button>
+        </div>
+    </div>
+    
+    <!-- MODAL KERANJANG -->
+    <div class="modal-overlay" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🛒 Keranjang Pesanan</h2>
+                <button class="modal-close" id="closeModalBtn">✕</button>
+            </div>
+            <div id="cartItemsContainer">
+                <!-- Isi keranjang akan di-render oleh JavaScript -->
+            </div>
+            <div class="modal-total">
+                <span>Total</span>
+                <span id="modalTotalPrice">Rp 0</span>
+            </div>
+            <button class="modal-checkout-btn" id="modalCheckoutBtn">Pesan via WhatsApp →</button>
+        </div>
     </div>
     
     <script>
         // ============ KONFIGURASI ============
-        // Ganti dengan URL API yang sudah Anda deploy dari Langkah 3!
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz67GyELZYeg4JG_IROTKYmsizC9xcP_EzQhdQouzs-jRLp7eoK1709nskiGtGWxzQ1IQ/exec';
-        
-        // Nomor WhatsApp toko (pakai kode negara, contoh: 628123456789 untuk Indonesia)
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwjI09PEhB1Nf1CgL0oWTqVZgkvAWI8A-aMkZkdRxRrAK4F1ExEomRaDeYMphj4eWCzQA/exec';
         const WHATSAPP_NUMBER = '6285749490884';
-        
-        // Nama toko (akan muncul di pesan WhatsApp)
-        const STORE_NAME = '[Restoran Aghnia]';
+        const STORE_NAME = 'Aghnia Restaurant';
         // =====================================
         
-        let allItems = [];      // Semua item menu
-        let cart = [];          // Item dalam keranjang: { id, nama_item, harga, quantity }
+        let allItems = [];
+        let cart = [];
         
-        // Fungsi format Rupiah
+        // Format Rupiah
         function formatRupiah(angka) {
-            return 'Rp ' + angka.toLocaleString('id-ID');
+            return 'Rp ' + Number(angka).toLocaleString('id-ID');
         }
         
-        // Fungsi mengambil data dari API
+        // ============ FETCH MENU ============
         async function fetchMenu() {
             try {
                 const response = await fetch(API_URL);
                 if (!response.ok) throw new Error('Gagal mengambil data');
                 const data = await response.json();
-                // Filter item yang tersedia
                 allItems = data.filter(item => item.tersedia === 'ya');
                 renderCategories();
                 renderMenu('semua');
@@ -256,7 +445,7 @@
             }
         }
         
-        // Render tombol kategori
+        // ============ RENDER KATEGORI ============
         function renderCategories() {
             const categories = ['semua', ...new Set(allItems.map(item => item.kategori))];
             const container = document.getElementById('categories');
@@ -266,18 +455,16 @@
                 </button>`
             ).join('');
             
-            // Event listener untuk filter kategori
             document.querySelectorAll('.category-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
-                    const category = btn.dataset.category;
-                    renderMenu(category);
+                    renderMenu(btn.dataset.category);
                 });
             });
         }
         
-        // Render item menu berdasarkan kategori
+        // ============ RENDER MENU ============
         function renderMenu(category) {
             const filtered = category === 'semua' 
                 ? allItems 
@@ -308,7 +495,6 @@
                 </div>
             `).join('');
             
-            // Event listener untuk tombol tambah ke keranjang
             document.querySelectorAll('.order-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -320,7 +506,7 @@
             });
         }
         
-        // Menambah item ke keranjang
+        // ============ FUNGSI KERANJANG ============
         function addToCart(id, nama, harga) {
             const existing = cart.find(item => item.id === id);
             if (existing) {
@@ -330,43 +516,105 @@
             }
             updateCartUI();
             
-            // Animasi feedback
+            // Feedback animasi
             const btn = event.target;
             const originalText = btn.innerText;
             btn.innerText = '✓ Ditambahkan';
-            setTimeout(() => { btn.innerText = originalText; }, 1000);
+            setTimeout(() => { btn.innerText = originalText; }, 800);
         }
         
-        // Update tampilan keranjang
+        function removeFromCart(id) {
+            cart = cart.filter(item => item.id !== id);
+            updateCartUI();
+            renderCartModal();
+        }
+        
+        function updateQuantity(id, delta) {
+            const item = cart.find(item => item.id === id);
+            if (!item) return;
+            
+            const newQty = item.quantity + delta;
+            if (newQty <= 0) {
+                removeFromCart(id);
+                return;
+            }
+            item.quantity = newQty;
+            updateCartUI();
+            renderCartModal();
+        }
+        
+        function getTotalItems() {
+            return cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+        
+        function getTotalPrice() {
+            return cart.reduce((sum, item) => sum + (item.harga * item.quantity), 0);
+        }
+        
+        // ============ UPDATE UI KERANJANG ============
         function updateCartUI() {
             const footer = document.getElementById('cartFooter');
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            const totalPrice = cart.reduce((sum, item) => sum + (item.harga * item.quantity), 0);
+            const totalItems = getTotalItems();
+            const totalPrice = getTotalPrice();
             
             if (totalItems === 0) {
                 footer.style.display = 'none';
             } else {
                 footer.style.display = 'flex';
-                document.getElementById('cartCount').innerText = totalItems;
-                document.getElementById('cartTotal').innerHTML = formatRupiah(totalPrice);
+                document.getElementById('footerItemCount').innerText = totalItems;
+                document.getElementById('footerTotal').innerHTML = formatRupiah(totalPrice);
             }
         }
         
-        // Buat format pesanan WhatsApp
+        // ============ RENDER MODAL KERANJANG ============
+        function renderCartModal() {
+            const container = document.getElementById('cartItemsContainer');
+            const totalPrice = getTotalPrice();
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <p style="font-size:48px;">🛒</p>
+                        <p>Keranjang masih kosong</p>
+                        <p style="font-size:14px;color:#bbb;margin-top:8px;">Tambahkan menu dari daftar</p>
+                    </div>
+                `;
+                document.getElementById('modalTotalPrice').innerHTML = formatRupiah(0);
+                return;
+            }
+            
+            container.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.nama_item}</div>
+                        <div class="cart-item-price">${formatRupiah(item.harga)}</div>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button class="qty-btn remove" onclick="removeFromCart(${item.id})">✕</button>
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">−</button>
+                        <span class="cart-item-qty">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('modalTotalPrice').innerHTML = formatRupiah(totalPrice);
+        }
+        
+        // ============ FORMAT PESANAN WA ============
         function formatWhatsAppMessage() {
             let message = `*PESANAN DARI ${STORE_NAME.toUpperCase()}*%0A%0A`;
             cart.forEach(item => {
                 message += `🍽️ ${item.nama_item}%0A`;
                 message += `   📦 ${item.quantity} x ${formatRupiah(item.harga)} = ${formatRupiah(item.harga * item.quantity)}%0A`;
             });
-            const totalPrice = cart.reduce((sum, item) => sum + (item.harga * item.quantity), 0);
-            message += `%0A*TOTAL: ${formatRupiah(totalPrice)}*%0A%0A`;
+            const total = getTotalPrice();
+            message += `%0A*TOTAL: ${formatRupiah(total)}*%0A%0A`;
             message += `Silakan konfirmasi pesanan dan berikan alamat pengiriman.%0A`;
             message += `Terima kasih! 🙏`;
             return message;
         }
         
-        // Checkout: redirect ke WhatsApp
         function checkout() {
             if (cart.length === 0) {
                 alert('Keranjang masih kosong. Silakan pilih menu terlebih dahulu.');
@@ -377,10 +625,37 @@
             window.open(waUrl, '_blank');
         }
         
-        // Event listener untuk tombol checkout
+        // ============ EVENT LISTENER ============
+        // Buka modal
+        document.getElementById('viewCartBtn').addEventListener('click', () => {
+            renderCartModal();
+            document.getElementById('cartModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        // Tutup modal
+        function closeModal() {
+            document.getElementById('cartModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        document.getElementById('cartModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('cartModal')) {
+                closeModal();
+            }
+        });
+        
+        // Checkout dari footer
         document.getElementById('checkoutBtn').addEventListener('click', checkout);
         
-        // Load data saat halaman dibuka
+        // Checkout dari modal
+        document.getElementById('modalCheckoutBtn').addEventListener('click', () => {
+            closeModal();
+            setTimeout(checkout, 300);
+        });
+        
+        // ============ LOAD ============
         fetchMenu();
     </script>
 </body>
