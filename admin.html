@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Manajemen Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* ========== HEADER ========== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #25D366;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1da15a;
+        }
+        
+        .btn-danger {
+            background: #e53935;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c62828;
+        }
+        
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #bdbdbd;
+        }
+        
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+        
+        /* ========== LOGIN FORM ========== */
+        .login-box {
+            max-width: 400px;
+            margin: 80px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+        
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #333;
+        }
+        
+        .login-box input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .login-box input:focus {
+            outline: none;
+            border-color: #25D366;
+        }
+        
+        .login-box .btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+        }
+        
+        .login-error {
+            color: #e53935;
+            text-align: center;
+            margin-bottom: 12px;
+            display: none;
+        }
+        
+        /* ========== TABLE ========== */
+        .table-wrapper {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .table-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+        
+        .table-search {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .table-search input {
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        
+        .table-search input:focus {
+            outline: none;
+            border-color: #25D366;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #f9f9f9;
+        }
+        
+        th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: #555;
+            border-bottom: 2px solid #eee;
+        }
+        
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+        
+        tr:hover {
+            background: #fafafa;
+        }
+        
+        .menu-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #eee;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-badge.available {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-badge.unavailable {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state p {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        /* ========== MODAL FORM ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-box {
+            background: white;
+            border-radius: 20px;
+            max-width: 550px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal-box h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .modal-box .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .modal-box label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        
+        .modal-box label .required {
+            color: #e53935;
+        }
+        
+        .modal-box input,
+        .modal-box select,
+        .modal-box textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border 0.2s;
+        }
+        
+        .modal-box input:focus,
+        .modal-box select:focus,
+        .modal-box textarea:focus {
+            outline: none;
+            border-color: #25D366;
+        }
+        
+        .modal-box textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .modal-box .file-upload-wrapper {
+            border: 2px dashed #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: border 0.2s;
+            background: #fafafa;
+        }
+        
+        .modal-box .file-upload-wrapper:hover {
+            border-color: #25D366;
+        }
+        
+        .modal-box .file-upload-wrapper .file-name {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+        
+        .modal-box .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        .modal-box .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        
+        .modal-box .modal-actions .btn {
+            padding: 10px 28px;
+        }
+        
+        .image-preview {
+            margin-top: 8px;
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .image-preview.visible {
+            display: block;
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .table-search {
+                flex-direction: column;
+            }
+            
+            .table-search input {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .modal-box .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-box {
+                padding: 20px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+            
+            .actions-cell {
+                flex-direction: column;
+            }
+            
+            .menu-thumb {
+                width: 40px;
+                height: 40px;
+            }
+        }
+        
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            z-index: 999;
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        .toast.success {
+            background: #25D366;
+        }
+        
+        .toast.error {
+            background: #e53935;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+        
+        /* Confirmation dialog */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 350;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .confirm-overlay.active {
+            display: flex;
+        }
+        
+        .confirm-box {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .confirm-box p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .confirm-box .confirm-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- ========================================== -->
+    <!-- TOAST NOTIFICATION -->
+    <!-- ========================================== -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- ========================================== -->
+    <!-- CONFIRM DIALOG -->
+    <!-- ========================================== -->
+    <div class="confirm-overlay" id="confirmDialog">
+        <div class="confirm-box">
+            <p id="confirmMessage">Apakah Anda yakin ingin menghapus menu ini?</p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" onclick="closeConfirm()">Batal</button>
+                <button class="btn btn-danger" id="confirmYesBtn">Hapus</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- LOGIN SCREEN -->
+    <!-- ========================================== -->
+    <div id="loginScreen" class="container">
+        <div class="login-box">
+            <h2>🔐 Admin Panel</h2>
+            <div class="login-error" id="loginError">Password salah!</div>
+            <input type="password" id="passwordInput" placeholder="Masukkan password admin" onkeydown="if(event.key==='Enter') login()">
+            <button class="btn btn-primary" onclick="login()">Masuk</button>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- MAIN CONTENT (hidden until login) -->
+    <!-- ========================================== -->
+    <div id="mainContent" style="display:none;">
+        <div class="container">
+            <!-- HEADER -->
+            <div class="header">
+                <h1>📋 Manajemen Menu</h1>
+                <div class="header-actions">
+                    <span id="userDisplay" style="font-size:14px;color:#666;">Admin</span>
+                    <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+                    <button class="btn btn-primary" onclick="openAddModal()">+ Tambah Menu</button>
+                </div>
+            </div>
+            
+            <!-- TABLE -->
+            <div class="table-wrapper">
+                <div class="table-header">
+                    <h2>Daftar Menu</h2>
+                    <div class="table-search">
+                        <input type="text" id="searchInput" placeholder="🔍 Cari menu..." oninput="filterTable()">
+                        <select id="statusFilter" onchange="filterTable()">
+                            <option value="all">Semua Status</option>
+                            <option value="ya">Tersedia</option>
+                            <option value="tidak">Tidak Tersedia</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="tableContainer">
+                    <div class="loading">Memuat data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- MODAL FORM (Tambah / Edit) -->
+    <!-- ========================================== -->
+    <div class="modal-overlay" id="formModal">
+        <div class="modal-box">
+            <h2 id="formTitle">Tambah Menu</h2>
+            <form id="menuForm" onsubmit="return false;">
+                <input type="hidden" id="editId" value="">
+                
+                <div class="form-group">
+                    <label>Nama Menu <span class="required">*</span></label>
+                    <input type="text" id="fNama" placeholder="Contoh: Nasi Goreng Spesial" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Harga <span class="required">*</span></label>
+                        <input type="number" id="fHarga" placeholder="35000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori <span class="required">*</span></label>
+                        <select id="fKategori" required>
+                            <option value="">Pilih Kategori</option>
+                            <option value="Makanan">Makanan</option>
+                            <option value="Minuman">Minuman</option>
+                            <option value="Snack">Snack</option>
+                            <option value="Dessert">Dessert</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Deskripsi</label>
+                    <textarea id="fDeskripsi" placeholder="Deskripsi singkat menu..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Gambar</label>
+                    <div class="file-upload-wrapper" onclick="document.getElementById('fileInput').click()">
+                        <span id="uploadPlaceholder">📤 Klik untuk pilih gambar</span>
+                        <div class="file-name" id="fileNameDisplay">Belum ada file dipilih</div>
+                        <input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+                    </div>
+                    <img id="imagePreview" class="image-preview" alt="Preview">
+                    <input type="hidden" id="fLinkGambar" value="">
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="fTersedia">
+                        <option value="ya">Tersedia</option>
+                        <option value="tidak">Tidak Tersedia</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
+                    <button type="button" class="btn btn-primary" id="formSubmitBtn" onclick="submitForm()">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ========================================== -->
+    <script>
+        // ============================================
+        // KONFIGURASI
+        // ============================================
+        const CONFIG = {
+            // ⚠️ GANTI DENGAN URL API ANDA (dari Langkah 2.5)
+            API_URL: 'https://script.google.com/macros/s/URL_ANDA/exec',
+            
+            // ⚠️ GANTI DENGAN PASSWORD YANG SAMA DENGAN DI APPS SCRIPT
+            ADMIN_PASSWORD: 'admin123'
+        };
+        
+        // ============================================
+        // STATE
+        // ============================================
+        let allItems = [];
+        let isLoggedIn = false;
+        let deleteTargetId = null;
+        let isEditing = false;
+        
+        // ============================================
+        // AUTHENTICATION
+        // ============================================
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            const errorEl = document.getElementById('loginError');
+            
+            if (password === CONFIG.ADMIN_PASSWORD) {
+                isLoggedIn = true;
+                errorEl.style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                fetchMenu();
+            } else {
+                errorEl.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+        
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        // ============================================
+        // API CALLS
+        // ============================================
+        async function callAPI(action, data = {}) {
+            const payload = {
+                action: action,
+                password: CONFIG.ADMIN_PASSWORD,
+                ...data
+            };
+            
+            try {
+                const response = await fetch(CONFIG.API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function fetchMenu() {
+            try {
+                const response = await fetch(CONFIG.API_URL);
+                const data = await response.json();
+                if (data.error) throw new Error(data.error);
+                allItems = data;
+                renderTable();
+            } catch (error) {
+                showToast('Gagal memuat data: ' + error.message, 'error');
+                document.getElementById('tableContainer').innerHTML = 
+                    '<div class="empty-state"><p>❌</p><p>Gagal memuat data</p></div>';
+            }
+        }
+        
+        // ============================================
+        // RENDER TABLE
+        // ============================================
+        function renderTable() {
+            const container = document.getElementById('tableContainer');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filtered = allItems;
+            
+            // Filter status
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(item => item.tersedia === statusFilter);
+            }
+            
+            // Filter search
+            if (search) {
+                filtered = filtered.filter(item => 
+                    item.nama_item.toLowerCase().includes(search) ||
+                    (item.kategori && item.kategori.toLowerCase().includes(search))
+                );
+            }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭</p>
+                        <p>Tidak ada menu ditemukan</p>
+                        <p style="font-size:14px;color:#bbb;margin-top:8px;">
+                            ${allItems.length === 0 ? 'Belum ada menu. Klik "Tambah Menu" untuk memulai.' : 'Coba ubah filter pencarian.'}
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Gambar</th>
+                            <th>Nama</th>
+                            <th>Kategori</th>
+                            <th>Harga</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            filtered.forEach(item => {
+                const statusClass = item.tersedia === 'ya' ? 'available' : 'unavailable';
+                const statusLabel = item.tersedia === 'ya' ? 'Tersedia' : 'Tidak Tersedia';
+                const thumb = item.link_gambar || 'https://picsum.photos/id/1/60/60';
+                
+                html += `
+                    <tr>
+                        <td>${item.id}</td>
+                        <td><img class="menu-thumb" src="${thumb}" alt="${item.nama_item}" onerror="this.src='https://picsum.photos/id/1/60/60'"></td>
+                        <td><strong>${item.nama_item}</strong></td>
+                        <td>${item.kategori || '-'}</td>
+                        <td>${formatRupiah(parseInt(item.harga))}</td>
+                        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-sm" onclick="openEditModal(${item.id})">✏️ Edit</button>
+                                <button class="btn btn-danger btn-sm" onclick="confirmDelete(${item.id})">🗑️ Hapus</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+        
+        function filterTable() {
+            renderTable();
+        }
+        
+        // ============================================
+        // FORMAT RUPIAH
+        // ============================================
+        function formatRupiah(angka) {
+            return 'Rp ' + Number(angka).toLocaleString('id-ID');
+        }
+        
+        // ============================================
+        // MODAL FORM
+        // ============================================
+        function openAddModal() {
+            isEditing = false;
+            document.getElementById('formTitle').textContent = '➕ Tambah Menu';
+            document.getElementById('editId').value = '';
+            document.getElementById('fNama').value = '';
+            document.getElementById('fHarga').value = '';
+            document.getElementById('fKategori').value = '';
+            document.getElementById('fDeskripsi').value = '';
+            document.getElementById('fLinkGambar').value = '';
+            document.getElementById('fTersedia').value = 'ya';
+            document.getElementById('fileNameDisplay').textContent = 'Belum ada file dipilih';
+            document.getElementById('uploadPlaceholder').textContent = '📤 Klik untuk pilih gambar';
+            document.getElementById('imagePreview').classList.remove('visible');
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('formSubmitBtn').textContent = 'Simpan';
+            document.getElementById('formModal').classList.add('active');
+        }
+        
+        async function openEditModal(id) {
+            const item = allItems.find(i => parseInt(i.id) === id);
+            if (!item) {
+                showToast('Menu tidak ditemukan', 'error');
+                return;
+            }
+            
+            isEditing = true;
+            document.getElementById('formTitle').textContent = '✏️ Edit Menu';
+            document.getElementById('editId').value = id;
+            document.getElementById('fNama').value = item.nama_item;
+            document.getElementById('fHarga').value = item.harga;
+            document.getElementById('fKategori').value = item.kategori || '';
+            document.getElementById('fDeskripsi').value = item.deskripsi || '';
+            document.getElementById('fLinkGambar').value = item.link_gambar || '';
+            document.getElementById('fTersedia').value = item.tersedia || 'ya';
+            document.getElementById('fileNameDisplay').textContent = item.link_gambar ? 'Gambar sudah ada' : 'Belum ada file dipilih';
+            document.getElementById('uploadPlaceholder').textContent = item.link_gambar ? '📷 Gambar sudah ada, klik untuk ganti' : '📤 Klik untuk pilih gambar';
+            
+            // Preview gambar yang sudah ada
+            if (item.link_gambar) {
+                const preview = document.getElementById('imagePreview');
+                preview.src = item.link_gambar;
+                preview.classList.add('visible');
+            } else {
+                document.getElementById('imagePreview').classList.remove('visible');
+            }
+            
+            document.getElementById('fileInput').value = '';
+            document.getElementById('formSubmitBtn').textContent = 'Update';
+            document.getElementById('formModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('formModal').classList.remove('active');
+        }
+        
+        // ============================================
+        // FILE UPLOAD HANDLER
+        // ============================================
+        let uploadedImageUrl = '';
+        
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const imageData = e.target.result;
+                
+                // Tampilkan preview
+                const preview = document.getElementById('imagePreview');
+                preview.src = imageData;
+                preview.classList.add('visible');
+                
+                document.getElementById('fileNameDisplay').textContent = file.name;
+                document.getElementById('uploadPlaceholder').textContent = '📷 Gambar dipilih, mengupload...';
+                
+                // Upload ke Google Drive via API
+                const base64Data = imageData.split(',')[1];
+                const result = await callAPI('upload_image', {
+                    imageData: base64Data,
+                    fileName: file.name,
+                    mimeType: file.type
+                });
+                
+                if (result.success) {
+                    uploadedImageUrl = result.url;
+                    document.getElementById('fLinkGambar').value = result.url;
+                    document.getElementById('uploadPlaceholder').textContent = '✅ Gambar berhasil diupload';
+                    showToast('Gambar berhasil diupload', 'success');
+                } else {
+                    document.getElementById('uploadPlaceholder').textContent = '❌ Gagal upload: ' + (result.error || 'unknown');
+                    showToast('Gagal upload gambar: ' + (result.error || 'unknown'), 'error');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // ============================================
+        // SUBMIT FORM
+        // ============================================
+        async function submitForm() {
+            const nama = document.getElementById('fNama').value.trim();
+            const harga = document.getElementById('fHarga').value.trim();
+            const kategori = document.getElementById('fKategori').value;
+            const deskripsi = document.getElementById('fDeskripsi').value.trim();
+            const linkGambar = document.getElementById('fLinkGambar').value.trim();
+            const tersedia = document.getElementById('fTersedia').value;
+            const editId = document.getElementById('editId').value;
+            
+            // Validasi
+            if (!nama) {
+                showToast('Nama menu wajib diisi', 'error');
+                document.getElementById('fNama').focus();
+                return;
+            }
+            if (!harga || parseInt(harga) <= 0) {
+                showToast('Harga wajib diisi dengan angka valid', 'error');
+                document.getElementById('fHarga').focus();
+                return;
+            }
+            if (!kategori) {
+                showToast('Kategori wajib dipilih', 'error');
+                document.getElementById('fKategori').focus();
+                return;
+            }
+            
+            // Gunakan gambar dari upload atau dari input manual
+            const finalImage = uploadedImageUrl || linkGambar;
+            
+            const data = {
+                nama_item: nama,
+                harga: parseInt(harga),
+                kategori: kategori,
+                deskripsi: deskripsi,
+                link_gambar: finalImage,
+                tersedia: tersedia
+            };
+            
+            let result;
+            if (editId) {
+                // EDIT
+                data.id = parseInt(editId);
+                result = await callAPI('edit', data);
+            } else {
+                // ADD
+                result = await callAPI('add', data);
+            }
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                closeModal();
+                uploadedImageUrl = '';
+                await fetchMenu();
+            } else {
+                showToast('Gagal: ' + (result.error || result.message || 'unknown error'), 'error');
+            }
+        }
+        
+        // ============================================
+        // DELETE CONFIRMATION
+        // ============================================
+        function confirmDelete(id) {
+            deleteTargetId = id;
+            const item = allItems.find(i => parseInt(i.id) === id);
+            document.getElementById('confirmMessage').textContent = 
+                `Apakah Anda yakin ingin menyembunyikan menu "${item ? item.nama_item : id}"? (soft delete)`;
+            document.getElementById('confirmDialog').classList.add('active');
+            document.getElementById('confirmYesBtn').onclick = function() {
+                executeDelete(deleteTargetId);
+            };
+        }
+        
+        function closeConfirm() {
+            document.getElementById('confirmDialog').classList.remove('active');
+            deleteTargetId = null;
+        }
+        
+        async function executeDelete(id) {
+            closeConfirm();
+            const result = await callAPI('delete', { id: parseInt(id) });
+            
+            if (result.success) {
+                showToast(result.message, 'success');
+                await fetchMenu();
+            } else {
+                showToast('Gagal: ' + (result.error || result.message || 'unknown error'), 'error');
+            }
+        }
+        
+        // ============================================
+        // TOAST NOTIFICATION
+        // ============================================
+        let toastTimeout;
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.style.display = 'block';
+            
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+        
+        // ============================================
+        // CLOSE MODAL ON OVERLAY CLICK
+        // ============================================
+        document.getElementById('formModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        
+        document.getElementById('confirmDialog').addEventListener('click', function(e) {
+            if (e.target === this) closeConfirm();
+        });
+        
+        // Enter key pada form
+        document.getElementById('menuForm').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitForm();
+            }
+        });
+        
+        // ============================================
+        // LOAD
+        // ============================================
+        // Cek apakah sudah login di session sebelumnya (tidak ada session, jadi selalu mulai dari login)
+        document.getElementById('loginScreen').style.display = 'block';
+        document.getElementById('mainContent').style.display = 'none';
+        document.getElementById('passwordInput').focus();
+    </script>
+</body>
+</html>
