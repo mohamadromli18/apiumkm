@@ -217,7 +217,7 @@
             border-radius: 20px 20px 0 0;
             max-width: 500px;
             width: 100%;
-            max-height: 80vh;
+            max-height: 85vh;
             padding: 20px;
             overflow-y: auto;
             animation: slideUp 0.3s ease;
@@ -316,6 +316,89 @@
             text-align: center;
         }
         
+        /* ============ FORM DI MODAL ============ */
+        .order-options {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px solid #eee;
+        }
+        
+        .order-options label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .order-options select,
+        .order-options input[type="number"],
+        .order-options textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            transition: border 0.2s;
+        }
+        
+        .order-options select:focus,
+        .order-options input:focus,
+        .order-options textarea:focus {
+            outline: none;
+            border-color: #25D366;
+        }
+        
+        .order-options textarea {
+            resize: vertical;
+            min-height: 50px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: normal;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .radio-group input[type="radio"] {
+            accent-color: #25D366;
+            width: 16px;
+            height: 16px;
+        }
+        
+        .table-input {
+            display: none;
+        }
+        
+        .table-input.visible {
+            display: block;
+        }
+        
+        .estimation {
+            background: #f0fdf4;
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .estimation strong {
+            font-weight: 600;
+        }
+        
         .modal-total {
             display: flex;
             justify-content: space-between;
@@ -403,9 +486,32 @@
                 <h2>🛒 Keranjang Pesanan</h2>
                 <button class="modal-close" id="closeModalBtn">✕</button>
             </div>
-            <div id="cartItemsContainer">
-                <!-- Isi keranjang akan di-render oleh JavaScript -->
+            
+            <!-- Daftar item -->
+            <div id="cartItemsContainer"></div>
+            
+            <!-- Opsi Pemesanan -->
+            <div class="order-options">
+                <label>Metode Pengiriman</label>
+                <div class="radio-group" id="deliveryMethodGroup">
+                    <label><input type="radio" name="delivery" value="dine-in" checked> Dine-in</label>
+                    <label><input type="radio" name="delivery" value="takeaway"> Takeaway</label>
+                    <label><input type="radio" name="delivery" value="delivery"> Delivery</label>
+                </div>
+                
+                <div class="table-input" id="tableInput">
+                    <label>Nomor Meja</label>
+                    <input type="number" id="tableNumber" placeholder="Masukkan nomor meja (1-20)" min="1" max="20">
+                </div>
+                
+                <label>Catatan Pesanan (opsional)</label>
+                <textarea id="orderNotes" placeholder="Contoh: no pedas, pakai es sedikit, tambah sambal..."></textarea>
+                
+                <div id="estimationDisplay" class="estimation" style="display:none;">
+                    ⏱️ Estimasi siap: <strong id="estimationText">15-25 menit</strong>
+                </div>
             </div>
+            
             <div class="modal-total">
                 <span>Total</span>
                 <span id="modalTotalPrice">Rp 0</span>
@@ -423,8 +529,104 @@
         
         let allItems = [];
         let cart = [];
+        let orderNotes = '';
+        let deliveryMethod = 'dine-in';
+        let tableNumber = '';
         
-        // Format Rupiah
+        // ============ LOCALSTORAGE ============
+        function saveToLocalStorage() {
+            try {
+                const data = {
+                    cart: cart,
+                    notes: document.getElementById('orderNotes').value,
+                    delivery: document.querySelector('input[name="delivery"]:checked')?.value || 'dine-in',
+                    table: document.getElementById('tableNumber').value
+                };
+                localStorage.setItem('resto_cart', JSON.stringify(data));
+            } catch (e) {}
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const raw = localStorage.getItem('resto_cart');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                if (data.cart && Array.isArray(data.cart)) {
+                    cart = data.cart;
+                }
+                if (data.notes !== undefined) {
+                    document.getElementById('orderNotes').value = data.notes;
+                }
+                if (data.delivery) {
+                    const radio = document.querySelector(`input[name="delivery"][value="${data.delivery}"]`);
+                    if (radio) radio.checked = true;
+                    deliveryMethod = data.delivery;
+                }
+                if (data.table) {
+                    document.getElementById('tableNumber').value = data.table;
+                    tableNumber = data.table;
+                }
+                // Trigger perubahan metode
+                toggleTableInput(deliveryMethod);
+                updateEstimation();
+                updateCartUI();
+                renderCartModal();
+            } catch (e) {}
+        }
+        
+        // ============ ESTIMASI WAKTU ============
+        function calculateEstimation() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            let base = 0;
+            let extraPerItem = 0;
+            
+            switch(deliveryMethod) {
+                case 'dine-in':
+                    base = 15;
+                    extraPerItem = 3;
+                    break;
+                case 'takeaway':
+                    base = 10;
+                    extraPerItem = 2;
+                    break;
+                case 'delivery':
+                    base = 30;
+                    extraPerItem = 5;
+                    break;
+                default:
+                    base = 20;
+                    extraPerItem = 3;
+            }
+            
+            const total = base + (totalItems * extraPerItem);
+            const min = total - 5;
+            const max = total + 5;
+            return { min, max, total };
+        }
+        
+        function updateEstimation() {
+            const display = document.getElementById('estimationDisplay');
+            const text = document.getElementById('estimationText');
+            if (cart.length === 0) {
+                display.style.display = 'none';
+                return;
+            }
+            const est = calculateEstimation();
+            text.textContent = `${est.min}-${est.max} menit`;
+            display.style.display = 'block';
+        }
+        
+        // ============ TOGGLE INPUT MEJA ============
+        function toggleTableInput(method) {
+            const container = document.getElementById('tableInput');
+            if (method === 'dine-in') {
+                container.classList.add('visible');
+            } else {
+                container.classList.remove('visible');
+            }
+        }
+        
+        // ============ FORMAT RUPIAH ============
         function formatRupiah(angka) {
             return 'Rp ' + Number(angka).toLocaleString('id-ID');
         }
@@ -515,8 +717,8 @@
                 cart.push({ id, nama_item: nama, harga, quantity: 1 });
             }
             updateCartUI();
+            saveToLocalStorage();
             
-            // Feedback animasi
             const btn = event.target;
             const originalText = btn.innerText;
             btn.innerText = '✓ Ditambahkan';
@@ -527,6 +729,8 @@
             cart = cart.filter(item => item.id !== id);
             updateCartUI();
             renderCartModal();
+            saveToLocalStorage();
+            updateEstimation();
         }
         
         function updateQuantity(id, delta) {
@@ -541,6 +745,8 @@
             item.quantity = newQty;
             updateCartUI();
             renderCartModal();
+            saveToLocalStorage();
+            updateEstimation();
         }
         
         function getTotalItems() {
@@ -564,6 +770,7 @@
                 document.getElementById('footerItemCount').innerText = totalItems;
                 document.getElementById('footerTotal').innerHTML = formatRupiah(totalPrice);
             }
+            updateEstimation();
         }
         
         // ============ RENDER MODAL KERANJANG ============
@@ -603,13 +810,42 @@
         
         // ============ FORMAT PESANAN WA ============
         function formatWhatsAppMessage() {
+            const methodLabels = {
+                'dine-in': 'Dine-in',
+                'takeaway': 'Takeaway',
+                'delivery': 'Delivery'
+            };
+            
             let message = `*PESANAN DARI ${STORE_NAME.toUpperCase()}*%0A%0A`;
+            
+            // Metode & Meja
+            const method = document.querySelector('input[name="delivery"]:checked')?.value || 'dine-in';
+            message += `📋 Metode: ${methodLabels[method] || method}%0A`;
+            if (method === 'dine-in') {
+                const table = document.getElementById('tableNumber').value || '-';
+                message += `🪑 Meja: ${table}%0A`;
+            }
+            message += `%0A`;
+            
+            // Item
             cart.forEach(item => {
                 message += `🍽️ ${item.nama_item}%0A`;
                 message += `   📦 ${item.quantity} x ${formatRupiah(item.harga)} = ${formatRupiah(item.harga * item.quantity)}%0A`;
             });
+            
             const total = getTotalPrice();
             message += `%0A*TOTAL: ${formatRupiah(total)}*%0A%0A`;
+            
+            // Catatan
+            const notes = document.getElementById('orderNotes').value.trim();
+            if (notes) {
+                message += `📝 Catatan: ${notes}%0A%0A`;
+            }
+            
+            // Estimasi
+            const est = calculateEstimation();
+            message += `⏱️ Estimasi siap: ${est.min}-${est.max} menit%0A%0A`;
+            
             message += `Silakan konfirmasi pesanan dan berikan alamat pengiriman.%0A`;
             message += `Terima kasih! 🙏`;
             return message;
@@ -620,6 +856,17 @@
                 alert('Keranjang masih kosong. Silakan pilih menu terlebih dahulu.');
                 return;
             }
+            
+            // Validasi meja jika dine-in
+            const method = document.querySelector('input[name="delivery"]:checked')?.value || 'dine-in';
+            if (method === 'dine-in') {
+                const table = document.getElementById('tableNumber').value;
+                if (!table || table < 1 || table > 20) {
+                    alert('Silakan isi nomor meja (1-20) untuk pesanan Dine-in.');
+                    return;
+                }
+            }
+            
             const message = formatWhatsAppMessage();
             const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
             window.open(waUrl, '_blank');
@@ -628,7 +875,13 @@
         // ============ EVENT LISTENER ============
         // Buka modal
         document.getElementById('viewCartBtn').addEventListener('click', () => {
+            // Baca nilai terbaru dari form
+            orderNotes = document.getElementById('orderNotes').value;
+            const selectedRadio = document.querySelector('input[name="delivery"]:checked');
+            if (selectedRadio) deliveryMethod = selectedRadio.value;
+            tableNumber = document.getElementById('tableNumber').value;
             renderCartModal();
+            updateEstimation();
             document.getElementById('cartModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         });
@@ -637,6 +890,7 @@
         function closeModal() {
             document.getElementById('cartModal').classList.remove('active');
             document.body.style.overflow = 'auto';
+            saveToLocalStorage();
         }
         
         document.getElementById('closeModalBtn').addEventListener('click', closeModal);
@@ -644,6 +898,27 @@
             if (e.target === document.getElementById('cartModal')) {
                 closeModal();
             }
+        });
+        
+        // Perubahan metode pengiriman
+        document.querySelectorAll('input[name="delivery"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const method = document.querySelector('input[name="delivery"]:checked')?.value;
+                if (method) {
+                    deliveryMethod = method;
+                    toggleTableInput(method);
+                    updateEstimation();
+                    saveToLocalStorage();
+                }
+            });
+        });
+        
+        // Perubahan meja & catatan
+        document.getElementById('tableNumber').addEventListener('input', () => {
+            saveToLocalStorage();
+        });
+        document.getElementById('orderNotes').addEventListener('input', () => {
+            saveToLocalStorage();
         });
         
         // Checkout dari footer
@@ -656,6 +931,8 @@
         });
         
         // ============ LOAD ============
+        // Load dari localStorage sebelum fetch menu
+        loadFromLocalStorage();
         fetchMenu();
     </script>
 </body>
