@@ -522,9 +522,10 @@
     
     <script>
         // ============ KONFIGURASI ============
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwgmy_JPnXOPhufsAu9T1j3Fq3Yz_0bvWprb__qzywNoQ9CGpOzjpW648aIHMpm5GlA/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbx_5XaWeKR3BRTGwJkmcSSnkNzeJ06T8uSQbK1b77W1TrhbqhuvvKowhRnAYvipEzW4/exec';
         const WHATSAPP_NUMBER = '6285749490884';
         const STORE_NAME = 'Aghnia Restaurant';
+        const ADMIN_PASSWORD = 'admin123'; // Password untuk mengakses API (sama dengan di Apps Script)
         // =====================================
         
         let allItems = [];
@@ -851,13 +852,57 @@
             return message;
         }
         
+        // ============ KIRIM PESANAN KE API (LEVEL 2) ============
+        async function saveOrderToAPI() {
+            const method = document.querySelector('input[name="delivery"]:checked')?.value || 'dine-in';
+            const table = document.getElementById('tableNumber').value || '';
+            const notes = document.getElementById('orderNotes').value.trim();
+            const est = calculateEstimation();
+            const total = getTotalPrice();
+            
+            // Siapkan data item
+            const items = cart.map(item => ({
+                nama_item: item.nama_item,
+                harga: item.harga,
+                quantity: item.quantity
+            }));
+            
+            const payload = {
+                action: 'order',
+                password: ADMIN_PASSWORD,
+                metode: method,
+                meja: table,
+                items: items,
+                total: total,
+                catatan: notes,
+                estimasi: `${est.min}-${est.max} menit`
+            };
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    console.log('✅ Pesanan berhasil disimpan:', result);
+                } else {
+                    console.error('❌ Gagal simpan pesanan:', result.error);
+                    // Tampilkan peringatan tapi tetap lanjutkan ke WhatsApp
+                }
+            } catch (error) {
+                console.error('❌ Error saat simpan pesanan:', error);
+                // Tetap lanjutkan ke WhatsApp meskipun gagal simpan
+            }
+        }
+        
+        // ============ CHECKOUT (DENGAN SIMPAN PESANAN) ============
         function checkout() {
             if (cart.length === 0) {
                 alert('Keranjang masih kosong. Silakan pilih menu terlebih dahulu.');
                 return;
             }
             
-            // Validasi meja jika dine-in
             const method = document.querySelector('input[name="delivery"]:checked')?.value || 'dine-in';
             if (method === 'dine-in') {
                 const table = document.getElementById('tableNumber').value;
@@ -867,9 +912,19 @@
                 }
             }
             
-            const message = formatWhatsAppMessage();
-            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
-            window.open(waUrl, '_blank');
+            // 🔥 Kirim pesanan ke API terlebih dahulu (Level 2)
+            saveOrderToAPI().then(() => {
+                // Setelah selesai (atau gagal), redirect ke WhatsApp
+                const message = formatWhatsAppMessage();
+                const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+                window.open(waUrl, '_blank');
+                
+                // Kosongkan keranjang dan reset setelah checkout
+                cart = [];
+                updateCartUI();
+                saveToLocalStorage();
+                closeModal();
+            });
         }
         
         // ============ EVENT LISTENER ============
